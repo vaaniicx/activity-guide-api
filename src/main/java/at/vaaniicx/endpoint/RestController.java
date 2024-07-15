@@ -33,7 +33,7 @@ public class RestController {
 
     static {
         CATEGORY_MAP.put("commercial.food_and_drink.ice_cream", IS_PERFECT_WEATHER);
-        CATEGORY_MAP.put("entertainment.culture.water_park", IS_PERFECT_WEATHER);
+        CATEGORY_MAP.put("entertainment.water_park", IS_PERFECT_WEATHER);
         CATEGORY_MAP.put("beach", IS_PERFECT_WEATHER);
 
         CATEGORY_MAP.put("commercial.marketplace", IS_NICE_WEATHER);
