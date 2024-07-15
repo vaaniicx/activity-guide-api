@@ -16,6 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Predicate;
 
 @org.springframework.web.bind.annotation.RestController
 @RequestMapping("/results")
@@ -23,6 +24,15 @@ public class RestController {
     private static final String WEATHER_API_URL = "https://api.open-meteo.com/v1/forecast";
 
     private static final String GEOAPIFY_API_URL = "https://api.geoapify.com/v2/places";
+
+    private static final Map<String, Predicate<Weather>> CATEGORY_MAP = new HashMap<>();
+
+    // "activity", "catering", "entertainment", "rental", "tourism",
+    //                "camping", "beach", "sport"
+    static {
+        CATEGORY_MAP.put("entertainment", (weather -> true));
+        CATEGORY_MAP.put("beach", (weather -> weather.maximumTemperature() > 25 && weather.rainSum() < 1000));
+    }
 
     @GetMapping
     public ResponseEntity<List<ActivityByLocationAndWeatherDayResponse>> getActivityByLocationAndWeather(
@@ -34,9 +44,14 @@ public class RestController {
         Weather weatherResponse = WeatherResponseMapper.map(Objects.requireNonNull(
                 new RestTemplate().getForEntity(buildWeatherUrlTemplate(), ForecastResponse.class,
                         getWeatherQueryParams(latitude, longitude, startDate, endDate)).getBody()));
-        GeoApifyResponse geoApifyResponse = new RestTemplate().getForEntity(buildPlacesUrlTemplate(),
-                GeoApifyResponse.class, getPlacesQueryParams(latitude, longitude, radius)).getBody();
 
+        List<String> categories = new ArrayList<>();
+        for (Map.Entry<String, Predicate<Weather>> entry : CATEGORY_MAP.entrySet()) {
+            if (entry.getValue().test(weatherResponse)) categories.add(entry.getKey());
+        }
+
+        GeoApifyResponse geoApifyResponse = new RestTemplate().getForEntity(buildPlacesUrlTemplate(),
+                GeoApifyResponse.class, getPlacesQueryParams(latitude, longitude, radius, categories.toArray(new String[categories.size()]))).getBody();
 
         List<ActivityByLocationAndWeatherDayResponse> result = new ArrayList<>();
         int dayCount = 0;
@@ -68,11 +83,10 @@ public class RestController {
         return params;
     }
 
-    private Map<String, Object> getPlacesQueryParams(float latitude, float longitude, int radius) {
+    private Map<String, Object> getPlacesQueryParams(float latitude, float longitude, int radius, String[] categories) {
         Map<String, Object> params = new HashMap<>();
         params.put("apiKey", "");
-        params.put("categories", new String[]{"activity", "catering", "entertainment", "rental", "tourism",
-                "camping", "beach", "sport"});
+        params.put("categories", categories);
         params.put("latitude", latitude);
         params.put("longitude", longitude);
         params.put("radius", radius);
