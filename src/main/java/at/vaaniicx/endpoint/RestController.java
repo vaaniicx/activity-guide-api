@@ -70,7 +70,7 @@ public class RestController {
 
     private Map<String, Object> getPlacesQueryParams(float latitude, float longitude, int radius) {
         Map<String, Object> params = new HashMap<>();
-        params.put("apiKey", "8f638233b64848ca964db7f2a118b89b");
+        params.put("apiKey", "");
         params.put("categories", new String[]{"activity", "catering", "entertainment", "rental", "tourism",
                 "camping", "beach", "sport"});
         params.put("latitude", latitude);
