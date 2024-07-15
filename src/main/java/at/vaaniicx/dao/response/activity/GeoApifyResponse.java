@@ -28,9 +28,10 @@ public class GeoApifyResponse {
             String houseNumber = properties.get("housenumber") == null ? null : properties.get("housenumber").toString();
             String postCode = properties.get("postcode") == null ? null : properties.get("postcode").toString();
             String city = properties.get("city") == null ? null : properties.get("city").toString();
+            String website = properties.get("website") == null ? null : properties.get("website").toString();
             String[] categories = new ObjectMapper().convertValue(properties.get("categories"), String[].class);
 
-            this.places[count++] = new GeoApifyFeature(latitude, longitude, name, street, houseNumber, postCode, city, categories);
+            this.places[count++] = new GeoApifyFeature(latitude, longitude, name, street, houseNumber, postCode, city,website, categories);
         }
     }
 }
