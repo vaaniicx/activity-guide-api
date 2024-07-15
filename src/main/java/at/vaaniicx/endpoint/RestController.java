@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import at.vaaniicx.dao.response.ActivityByLocationAndWeatherResponse;
 import at.vaaniicx.dao.response.activity.GeoApifyResponse;
 import at.vaaniicx.dao.response.weather.ForecastResponse;
 import at.vaaniicx.dao.response.weather.Weather;
@@ -25,7 +27,7 @@ public class RestController {
     private static final String GEOAPIFY_API_URL = "https://api.geoapify.com/v2/places";
 
     @GetMapping
-    public ResponseEntity<GeoApifyResponse> getActivityByLocationAndWeather(
+    public ResponseEntity<ActivityByLocationAndWeatherResponse> getActivityByLocationAndWeather(
             @RequestParam(name = "latitude") float latitude,
             @RequestParam(name = "longitude") float longitude, @RequestParam(name = "radius") int radius,
             @RequestParam(name = "start_date") LocalDate startDate,
@@ -34,9 +36,11 @@ public class RestController {
         Weather weatherResponse = WeatherResponseMapper.map(Objects.requireNonNull(
                 new RestTemplate().getForEntity(buildWeatherUrlTemplate(), ForecastResponse.class,
                         getWeatherQueryParams(latitude, longitude, startDate, endDate)).getBody()));
+        GeoApifyResponse geoApifyResponse = new RestTemplate().getForEntity(buildPlacesUrlTemplate(),
+                GeoApifyResponse.class, getPlacesQueryParams(latitude, longitude, radius)).getBody();
 
-        return new RestTemplate().getForEntity(buildPlacesUrlTemplate(), GeoApifyResponse.class,
-                getPlacesQueryParams(latitude, longitude, radius));
+        return new ResponseEntity<>(new ActivityByLocationAndWeatherResponse(weatherResponse, geoApifyResponse),
+                HttpStatus.OK);
     }
 
     private Map<String, Object> getWeatherQueryParams(float latitude, float longitude, LocalDate startDate,
