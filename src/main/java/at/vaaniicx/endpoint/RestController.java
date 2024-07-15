@@ -27,11 +27,36 @@ public class RestController {
 
     private static final Map<String, Predicate<Weather>> CATEGORY_MAP = new HashMap<>();
 
-    // "activity", "catering", "entertainment", "rental", "tourism",
-    //                "camping", "beach", "sport"
+    private static final Predicate<Weather> IS_PERFECT_WEATHER = weather -> weather.maximumTemperature() > 25 && weather.rainSum() < 100;
+    private static final Predicate<Weather> IS_NICE_WEATHER = weather -> weather.maximumTemperature() > 18 && weather.rainSum() < 300;
+    private static final Predicate<Weather> IS_RAINY_WEATHER = weather -> !IS_NICE_WEATHER.test(weather);
+
     static {
-        CATEGORY_MAP.put("entertainment", (weather -> true));
-        CATEGORY_MAP.put("beach", (weather -> weather.maximumTemperature() > 25 && weather.rainSum() < 1000));
+        CATEGORY_MAP.put("commercial.food_and_drink.ice_cream", IS_PERFECT_WEATHER);
+        CATEGORY_MAP.put("entertainment.culture.water_park", IS_PERFECT_WEATHER);
+        CATEGORY_MAP.put("beach", IS_PERFECT_WEATHER);
+
+        CATEGORY_MAP.put("commercial.marketplace", IS_NICE_WEATHER);
+        CATEGORY_MAP.put("entertainment.zoo", IS_NICE_WEATHER);
+        CATEGORY_MAP.put("entertainment.miniature_golf", IS_NICE_WEATHER);
+        CATEGORY_MAP.put("entertainment.theme_park", IS_NICE_WEATHER);
+        CATEGORY_MAP.put("entertainment.activity_park", IS_NICE_WEATHER);
+        CATEGORY_MAP.put("leisure.picnic", IS_NICE_WEATHER);
+        CATEGORY_MAP.put("leisure.park", IS_NICE_WEATHER);
+        CATEGORY_MAP.put("sport.stadium", IS_NICE_WEATHER);
+
+        CATEGORY_MAP.put("commercial.shopping_mall", IS_RAINY_WEATHER);
+        CATEGORY_MAP.put("entertainment.culture.theatre", IS_RAINY_WEATHER);
+        CATEGORY_MAP.put("entertainment.culture.arts_centre", IS_RAINY_WEATHER);
+        CATEGORY_MAP.put("entertainment.aquarium", IS_RAINY_WEATHER);
+        CATEGORY_MAP.put("entertainment.planetarium", IS_RAINY_WEATHER);
+        CATEGORY_MAP.put("entertainment.museum", IS_RAINY_WEATHER);
+        CATEGORY_MAP.put("entertainment.cinema", IS_RAINY_WEATHER);
+        CATEGORY_MAP.put("entertainment.escape_game", IS_RAINY_WEATHER);
+        CATEGORY_MAP.put("entertainment.bowling_alley", IS_RAINY_WEATHER);
+        CATEGORY_MAP.put("leisure.spa", IS_RAINY_WEATHER);
+        CATEGORY_MAP.put("service.beauty.massage", IS_RAINY_WEATHER);
+        CATEGORY_MAP.put("sport.fitness.fitness_centre", IS_RAINY_WEATHER);
     }
 
     @GetMapping

@@ -33,6 +33,9 @@ public class GeoApifyFeature {
     private String city;
 
     @JsonProperty
+    private String website;
+
+    @JsonProperty
     private String[] categories;
 
     @JsonProperty("features")
